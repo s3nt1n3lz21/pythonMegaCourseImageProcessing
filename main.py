@@ -1,5 +1,6 @@
 import cv2
 import time
+from datetime import datetime
 
 from emailing import send_email
 
@@ -16,7 +17,6 @@ while True:
     check, frame = video.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray_frame_gau = cv2.GaussianBlur(gray_frame, (21, 21), 0)
-    # cv2.imshow("A Video", gray_frame_gau)
     if first_frame is None:
         first_frame = gray_frame_gau
 
@@ -44,6 +44,21 @@ while True:
     if not is_object and is_object_before:
         send_email()
 
+    currentTime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    # Show the current time on the current frame
+    cv2.putText(
+        img=frame,
+        text=currentTime,
+        org=(30, 30),
+        fontFace=cv2.FONT_HERSHEY_PLAIN,
+        fontScale=2,
+        color=(0, 255, 0),
+        thickness=2,
+        lineType=cv2.LINE_AA
+    )
+
+    # Show the current frame
     cv2.imshow("Video", frame)
     key = cv2.waitKey(1)
     if key == ord("q"):
