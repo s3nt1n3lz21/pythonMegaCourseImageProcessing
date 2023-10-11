@@ -2,6 +2,7 @@ import cv2
 import time
 from datetime import datetime
 import glob
+import os
 
 from emailing import send_email
 
@@ -13,6 +14,11 @@ first_frame = None
 is_object = False
 is_object_before = False
 count = 1
+
+def clear_images():
+    images = glob.glob("images/*.png")
+    for image in images:
+        os.remove(image)
 
 while True:
     is_object = False
@@ -49,10 +55,10 @@ while True:
     if not is_object and is_object_before:
         all_images = glob.glob("images/*.png")
         middle_image = all_images[int(len(all_images)/2)]
-        send_email()
+        send_email(middle_image)
 
         # Clear images in image folder
-
+        clear_images()
 
     currentTime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
