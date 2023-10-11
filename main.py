@@ -1,6 +1,7 @@
 import cv2
 import time
 from datetime import datetime
+import glob
 
 from emailing import send_email
 
@@ -11,10 +12,12 @@ time.sleep(1)
 first_frame = None
 is_object = False
 is_object_before = False
+count = 1
 
 while True:
     is_object = False
     check, frame = video.read()
+
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray_frame_gau = cv2.GaussianBlur(gray_frame, (21, 21), 0)
     if first_frame is None:
@@ -39,10 +42,17 @@ while True:
         rectangle = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 3)
         if rectangle.any():
             is_object = True
+            # Save the image if there is an object
+            cv2.imwrite(f"images/{count}.png", frame)
 
     # Send the email if the object has just disappeared
     if not is_object and is_object_before:
+        all_images = glob.glob("images/*.png")
+        middle_image = all_images[int(len(all_images)/2)]
         send_email()
+
+        # Clear images in image folder
+
 
     currentTime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
@@ -66,5 +76,6 @@ while True:
         break
 
     is_object_before = is_object
+    count = count + 1
 
 video.release()
