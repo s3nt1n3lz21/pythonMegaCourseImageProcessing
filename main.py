@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 import glob
 import os
+from threading import Thread
 
 from emailing import send_email
 
@@ -55,10 +56,17 @@ while True:
     if not is_object and is_object_before:
         all_images = glob.glob("images/*.png")
         middle_image = all_images[int(len(all_images)/2)]
-        send_email(middle_image)
 
-        # Clear images in image folder
-        clear_images()
+        # Send the email on another thread
+        email_thread = Thread(target=send_email, args=(middle_image,))
+        email_thread.daemon = True
+
+        # Clear images in image folder on another thread
+        clear_image_thread = Thread(target=clear_images)
+        clear_image_thread.daemon = True
+
+        email_thread.start()
+        clear_image_thread.start()
 
     currentTime = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
